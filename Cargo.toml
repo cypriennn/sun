@@ -1,0 +1,45 @@
+[package]
+name = "sun"
+version = "0.1.0"
+edition = "2024"
+license = "AGPL-3.0-or-later"
+publish = false
+
+[target.'cfg(target_os = "linux")'.dependencies]
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "multipart", "query", "tokio"] }
+base64 = { version = "0.23", default-features = false, features = ["std"] }
+bytes = { version = "1", default-features = false, features = ["std"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+dotenvy = { version = "0.15", default-features = false }
+flowmaid = { version = "0.40", default-features = false }
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+http = { version = "1", default-features = false, features = ["std"] }
+maud = { version = "0.27", default-features = false, features = ["axum"] }
+openidconnect = { version = "4.1", default-features = false }
+pulldown-cmark = { version = "0.13", default-features = false, features = ["html", "simd"] }
+pulldown-latex = { version = "0.8", default-features = false }
+reqwest = { version = "0.13", default-features = false, features = ["http2", "json", "rustls-no-provider", "stream"] }
+rmcp = { version = "3.10", default-features = false, features = ["client", "reqwest-tls-no-provider", "transport-streamable-http-client-reqwest"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+serde = { version = "1", default-features = false, features = ["derive", "std"] }
+serde_json = { version = "1", default-features = false, features = ["std"] }
+sha2 = { version = "0.11", default-features = false }
+tokio = { version = "1", default-features = false, features = ["fs", "io-util", "macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
+toml = { version = "1.2", default-features = false, features = ["parse", "serde", "std"] }
+xberg = { version = "1.4", default-features = false, features = ["archives", "html", "pdf", "simd-utf8", "tokio-runtime", "xml"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+dbg_macro = "deny"
+todo = "deny"
+unwrap_used = "warn"
+
+[profile.release]
+opt-level = "s"
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"

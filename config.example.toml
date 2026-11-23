@@ -1,0 +1,117 @@
+# Copy to config.toml and replace the example URLs and model IDs.
+# Set SUN_LLM_API_KEY and, for confidential OIDC clients, SUN_OIDC_CLIENT_SECRET in .env.
+
+# Optional allowlist for built-in tools and the Fork here and Automations controls.
+# allowed_tools = ["current_timestamp", "shared", "ask_user", "search", "current_location", "fork_chat", "schedule_prompt"]
+
+# Read at startup. Compose overrides bind via SUN_BIND and mounts /app/data.
+[server]
+bind = "0.0.0.0:3030"
+data_dir = "data"
+
+[branding]
+name = "sun"
+logo = "🌞" # Text or image URL; omit for the built-in logo.
+accent_color = "#f4900c"
+background_color = "#0d0f12" # Main chat background.
+panel_color = "#13161b" # Sidebars, toolbar, and composer.
+
+[auth]
+enabled = false # Enable OIDC before exposing sun outside a trusted local environment.
+# HTTPS required except on loopback. Register the exact /auth/callback URL with your provider.
+issuer_url = "https://sso.example.com"
+client_id = "sun"
+redirect_url = "https://sun.example.com/auth/callback"
+scopes = ["openid", "profile", "email"]
+groups_claim = "groups" # Claim name or JSON Pointer, e.g. "/realm_access/roles".
+session_ttl_seconds = 28_800 # Memory-only session, capped by the ID token's expiry.
+
+[files]
+max_file_size = 26_214_400 # Bytes per file (25 MiB).
+
+# A model's system prompt replaces this system prompt, not the developer preprompt.
+[prompts]
+developer_preprompt = "State uncertainty when evidence is incomplete."
+system_prompt = "You are a concise, accurate assistant."
+
+[llm]
+base_url = "https://llm.example.com/v1" # OpenAI-compatible API base URL.
+auto_discover_models = false # Enable to add models discovered from the provider.
+default_model = "example-model"
+reasoning_tags = ["low", "medium", "high"] # Fallback when a model has no tags of its own.
+# Cumulative allowance per user, in millions of tokens (0.0 = unlimited).
+# Checked before each call. With a quota, missing usage blocks subsequent calls.
+max_m_tokens = 0.0
+
+[[llm.models]]
+id = "example-model"
+name = "Example Model"
+system_prompt = "Answer clearly and cite sources when available."
+reasoning_tags = ["low", "medium"] # Use values supported by this model.
+default_reasoning = "medium"
+
+[llm.models.tags]
+smartness = "high"
+pace = "fast"
+price = "$$"
+
+[llm.models.tags.extra]
+vision = "yes" # Custom display badges; values must be strings.
+
+# Initial tool states. Users can override these in the Runtime panel.
+[tools]
+current_timestamp = true # Includes the browser's time zone when available.
+shared = true
+ask_user = true
+search = false # Opt-in search across the current user's other chats.
+current_location = false # Request consent to share approximate browser coordinates.
+
+# Streamable HTTP only. Users enter their own MCP credentials in the chat UI.
+[[mcp]]
+name = "example-tools"
+url = "https://mcp.example.com/mcp"
+enabled_by_default = false
+
+# OIDC only. Matching groups override globals in alphabetical order; later values win.
+# Omit fields to inherit. Model and MCP lists replace earlier lists; allowlists filter
+# the final lists (including discovered models). An empty allowlist allows nothing.
+[groups.team]
+max_file_size = 52_428_800 # 50 MiB.
+max_m_tokens = 5.0
+default_model = "team-model"
+auto_discover_models = false
+reasoning_tags = ["medium", "high"]
+allowed_models = ["team-model"]
+allowed_mcp = ["team-tools"]
+# allowed_tools = ["current_timestamp", "shared", "ask_user"]
+
+[groups.team.prompts]
+developer_preprompt = "State assumptions before making recommendations."
+system_prompt = "Help the team troubleshoot and document its work."
+
+[groups.team.tools]
+current_timestamp = true
+shared = true
+ask_user = true
+search = false
+current_location = false
+
+[[groups.team.models]]
+id = "team-model"
+name = "Team Model"
+system_prompt = "Give concise troubleshooting steps."
+reasoning_tags = ["medium", "high"]
+default_reasoning = "high"
+
+[groups.team.models.tags]
+smartness = "high"
+pace = "moderate"
+price = "$$$"
+
+[groups.team.models.tags.extra]
+vision = "yes"
+
+[[groups.team.mcp]]
+name = "team-tools"
+url = "https://mcp.example.com/team/mcp"
+enabled_by_default = false
